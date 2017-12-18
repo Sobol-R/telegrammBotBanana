@@ -6,12 +6,21 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 public class Bot extends TelegramLongPollingBot {
 
+    private int day;
+    User user;
+    boolean codeMode = false;
+
     @Override
     public void onUpdateReceived(Update update) {
         if (update.getMessage().hasText()) {
             String text = update.getMessage().getText();
             long chatid = update.getMessage().getChatId();
             sendText(text, chatid);
+            if (text.equals("играть")) {
+                playGame(chatid);
+            } else if (text.equals("учить бота")) {
+                teachBot();
+            }
         } else if (update.getMessage().hasPhoto()) {
             String photo = update.getMessage().getPhoto().get(0).getFileId();
             long chatid = update.getMessage().getChatId();
@@ -37,6 +46,19 @@ public class Bot extends TelegramLongPollingBot {
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
+    }
+    private void playGame(long chatid) {
+        day = 0;
+        user = new User();
+        nextDay(chatid);
+    }
+    private void nextDay(long chatid) {
+        day++;
+        sendText("день номер" + day, chatid);
+        sendText(user.getInfo(), chatid);
+    }
+    private void teachBot() {
+
     }
     @Override
     public String getBotUsername() {
