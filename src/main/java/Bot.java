@@ -1,14 +1,24 @@
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.api.objects.Update;
+import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardButton;
+import org.telegram.telegrambots.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Bot extends TelegramLongPollingBot {
 
     private int day;
     User user;
-    boolean codeMode = false;
+    Food pizza;
+    boolean codeMOde = false;
+    boolean eatMode = false;
+    //Modes mode = Modes.MAIN_MODE;
+
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -19,7 +29,10 @@ public class Bot extends TelegramLongPollingBot {
             if (text.equals("играть")) {
                 playGame(chatid);
             } else if (text.equals("учить бота")) {
-                teachBot();
+
+            } else if (text.equals("кушать")) {
+                eatMode = true;
+                eat(text, chatid);
             }
         } else if (update.getMessage().hasPhoto()) {
             String photo = update.getMessage().getPhoto().get(0).getFileId();
@@ -57,8 +70,34 @@ public class Bot extends TelegramLongPollingBot {
         sendText("день номер" + day, chatid);
         sendText(user.getInfo(), chatid);
     }
-    private void teachBot() {
+    private void eat(String text, long chatid) {
+        sendText("что хотите съесть?", chatid);
+        if (text.equals("пицца")) {
+            pizza = new Pizza();
+            sendText("Сколько кусков хотите", chatid);
+            int number = Integer.parseInt(text);
+            sendText("Вы съели" + pizza.getPrice(number), chatid);
+        }
+    }
+    private void Keyboard(String text, long chatid /*String... buttonsName*/) {
+        ReplyKeyboardMarkup markup = new ReplyKeyboardMarkup();
+        List<KeyboardRow> keyboard = new ArrayList<>();
+        KeyboardRow firstRow = new KeyboardRow();
+        firstRow.add(new KeyboardButton("kzkzkzkz"));
+        firstRow.add(new KeyboardButton("blblblblbl"));
+        keyboard.add(firstRow);
+        markup.setKeyboard(keyboard);
 
+        SendMessage request =  new SendMessage();
+        request.setText(text);
+        request.setChatId(chatid);
+        request.setReplyMarkup(markup);
+
+        try {
+            execute(request);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
     }
     @Override
     public String getBotUsername() {
